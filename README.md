@@ -134,6 +134,21 @@ WHERE TABLE_NAME = 'order_items';
 ```
 <img width="330" height="213" alt="image" src="https://github.com/user-attachments/assets/bfbaffdf-03be-4633-bb39-4d780126fe8d" />
 
-## Krok 4: Konwersja typów w tabelach 'order_payments`, `order_reviews`, `products`.
+## Krok 5: Konwersja typów w pozostałych tabelach
 
-W pozostałych tabelach kroki zostały wykonane analogicznie jak opisano w kroku 4 dla tabeli `order_items`.
+Taką samą metodą jak w kroku 4 (sprawdzenie `TRY_CAST`, a potem `ALTER COLUMN`) zamieniono tekstowe kolumny liczbowe w pozostałych tabelach.
+
+Kontrola wszystkich zmienionych kolumn w bazie:
+
+```sql
+SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE COLUMN_NAME IN ('order_item_id', 'price', 'freight_value', 'payment_sequential',
+                      'payment_installments', 'payment_value', 'review_score', 'product_photos_qty')
+ORDER BY TABLE_NAME, ORDINAL_POSITION;
+```
+
+Wszystkie 8 kolumn ma teraz typ liczbowy (`int` lub `decimal`).
+
+<img width="487" height="238" alt="obraz" src="https://github.com/user-attachments/assets/92dbff3f-7d5f-43cd-a089-d421de7567ef" />
+
