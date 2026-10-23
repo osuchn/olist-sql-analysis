@@ -34,6 +34,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
 ORDER BY TABLE_NAME, ORDINAL_POSITION;
 ```
 Poniżej przedstawiono fragment wyniku:
+
 <img width="504" height="466" alt="image" src="https://github.com/user-attachments/assets/fcd096f3-a600-4934-9d75-262e47f818da" />
 
 Pełny wynik obejmuje wszystkie kolumny w bazie (46 wierszy), dlatego do dokumentacji użyto zawężonego zapytania, które pokazuje tylko te kolumny, które po analizie pełnej listy powinny być liczbami, a zostały zaimportowane jako tekst:
