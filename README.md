@@ -99,3 +99,37 @@ EXEC sp_rename 'product_category_name_translation.column2', 'product_category_na
 ```
 
 Po zmianie tabela zawiera kolumny `product_category_name` (nazwa portugalska) i `product_category_name_english` (nazwa angielska).
+
+
+## Krok 4: Konwersja typów w tabeli `order_items`
+
+Kolumny `order_item_id`, `price` i `freight_value` zostały zaimportowane jako tekst (`nvarchar`). Przed zmianą typu sprawdzono, czy wszystkie wartości da się przekonwertować. Funkcja `TRY_CAST` zwraca `NULL`, jeśli konwersja się nie powiedzie, a `COUNT` pomija wartości `NULL`, więc różnica między liczbą wszystkich wierszy a wynikiem `COUNT(TRY_CAST(...))` pokazuje liczbę wartości, które się nie konwertują:
+
+```sql
+SELECT
+  COUNT(*) AS wszystkie,
+  COUNT(TRY_CAST(order_item_id AS INT)) AS poprawne_item_id,
+  COUNT(TRY_CAST(price AS DECIMAL(10,2))) AS poprawne_price,
+  COUNT(TRY_CAST(freight_value AS DECIMAL(10,2))) AS poprawne_freight
+FROM order_items;
+```
+
+<img width="574" height="64" alt="image" src="https://github.com/user-attachments/assets/af1b3a32-62d0-4208-b47c-6f6ff89b94ef" />
+
+
+Wszystkie wartości dały się przekonwertować, więc zmieniono typy kolumn:
+
+```sql
+ALTER TABLE order_items ALTER COLUMN order_item_id INT;
+ALTER TABLE order_items ALTER COLUMN price DECIMAL(10,2);
+ALTER TABLE order_items ALTER COLUMN freight_value DECIMAL(10,2);
+```
+
+Sprawdzenie typów po zmianie:
+
+```sql
+SELECT COLUMN_NAME, DATA_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'order_items';
+```
+<img width="330" height="213" alt="image" src="https://github.com/user-attachments/assets/bfbaffdf-03be-4633-bb39-4d780126fe8d" />
