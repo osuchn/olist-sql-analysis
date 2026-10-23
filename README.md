@@ -64,3 +64,38 @@ ORDER BY TABLE_NAME, ORDINAL_POSITION;
 ### Dlaczego część kolumn jest tekstem
 
 Kolumny `price`, `freight_value` i `payment_value` zawierają liczby z kropką jako separatorem dziesiętnym (np. `58.90`). Import tych kolumn jako typ liczbowy kończył się błędem `Input string was not in a correct format`, prawdopodobnie przez polskie ustawienia regionalne Windowsa, w których separatorem jest przecinek. Dlatego kolumny z liczbami zaimportowano jako tekst (`nvarchar`). Zamiana na typy liczbowe zostanie wykonana w SQL w następnym kroku.
+
+## Krok 3: Naprawa tabeli `product_category_name_translation`
+
+W wyniku kroku 2 okazało się, że kolumny tej tabeli nazywają się `column1` i `column2`. Kreator importu nie rozpoznał nagłówka pliku, więc trafił on do tabeli jako pierwszy wiersz danych. Potwierdzenie:
+
+```sql
+SELECT TOP 5 * FROM product_category_name_translation;
+```
+
+<img width="621" height="159" alt="image" src="https://github.com/user-attachments/assets/151afd45-067b-4236-95fd-c4760887cf88" />
+
+
+Usunięto wiersz z nagłówkiem:
+
+```sql
+DELETE FROM product_category_name_translation
+WHERE column1 = 'product_category_name';
+```
+
+Sprawdzenie liczby wierszy (oczekiwane 71 kategorii):
+
+```sql
+SELECT COUNT(*) FROM product_category_name_translation;
+```
+
+Wynik: 71 wierszy.
+
+Następnie przemianowano kolumny na właściwe nazwy:
+
+```sql
+EXEC sp_rename 'product_category_name_translation.column1', 'product_category_name', 'COLUMN';
+EXEC sp_rename 'product_category_name_translation.column2', 'product_category_name_english', 'COLUMN';
+```
+
+Po zmianie tabela zawiera kolumny `product_category_name` (nazwa portugalska) i `product_category_name_english` (nazwa angielska).
