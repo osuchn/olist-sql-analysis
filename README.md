@@ -133,3 +133,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_NAME = 'order_items';
 ```
 <img width="330" height="213" alt="image" src="https://github.com/user-attachments/assets/bfbaffdf-03be-4633-bb39-4d780126fe8d" />
+
+## Krok 4: Konwersja typów w tabelach 'order_payments`, `order_reviews`, `products`.
+
+W pozostałych tabelach kroki zostały wykonane analogicznie jak opisano w kroku 4 dla tabeli `order_items`.
