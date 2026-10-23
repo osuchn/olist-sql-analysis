@@ -152,3 +152,36 @@ Wszystkie 8 kolumn ma teraz typ liczbowy (`int` lub `decimal`).
 
 <img width="487" height="238" alt="obraz" src="https://github.com/user-attachments/assets/92dbff3f-7d5f-43cd-a089-d421de7567ef" />
 
+## Krok 6: Puste wartości (NULL)
+
+Dla każdej tabeli policzono puste wartości w kolumnach. `COUNT(*)` liczy wszystkie wiersze, a `COUNT(kolumna)` pomija `NULL`, więc różnica to liczba braków (przykład dla `customers`):
+
+```sql
+SELECT
+  COUNT(*) AS wszystkie,
+  COUNT(*) - COUNT(customer_id) AS puste_customer_id,
+  COUNT(*) - COUNT(customer_city) AS puste_city
+  -- analogicznie dla pozostałych kolumn
+FROM customers;
+```
+
+### Wyniki
+
+| Tabela | Braki |
+|---|---|
+| `customers`, `order_items`, `order_payments`, `sellers`, `product_category_name_translation` | brak |
+| `order_reviews` | tytuł komentarza: 87 666 z 99 224, treść komentarza: 58 274 |
+| `orders` | zatwierdzenie: 160, odbiór przez przewoźnika: 1 783, dostawa do klienta: 2 965 |
+| `products` | 610 produktów bez kategorii, długości nazwy i opisu oraz liczby zdjęć, 2 bez wagi i wymiarów |
+
+### Wnioski i decyzje
+
+- **`order_reviews`:** braki w komentarzach to normalne zachowanie klientów, spora ilość zostawia samą ocenę. Sprawdzenie `LTRIM(RTRIM(...)) = ''` wykazało dodatkowo 8 pustych tytułów i 18 pustych komentarzy zapisanych jako pusty tekst, które zamieniono na `NULL`, żeby wszystkie braki były zapisane tak samo:
+
+```sql
+UPDATE order_reviews SET review_comment_title = NULL WHERE LTRIM(RTRIM(review_comment_title)) = '';
+UPDATE order_reviews SET review_comment_message = NULL WHERE LTRIM(RTRIM(review_comment_message)) = '';
+```
+
+- **`orders`:** braki w datach pogrupowano według statusu zamówienia (`GROUP BY order_status`). Prawie wszystkie wynikają ze statusu: zamówienia anulowane, niedostępne, w trakcie realizacji lub w drodze nie mają jeszcze dat kolejnych etapów. Tych wartości nie uzupełniano. Wyjątkiem jest niewielka niespójność w statusie `delivered` (dostarczone): 14 zamówień bez daty zatwierdzenia, 2 bez daty odbioru przez przewoźnika i 8 bez daty dostawy do klienta. Zostawiono je bez zmian i trzeba o nich pamiętać przy liczeniu czasów dostawy.
+- **`products`:** braki dotyczą tych samych wierszy. Nie ma skąd wziąć brakujących wartości, więc zostawiono `NULL`.
