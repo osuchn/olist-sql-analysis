@@ -22,3 +22,5 @@ ORDER BY t.name;
 ```
 
 Wynik: liczby wierszy zgadzają się z opisem zbioru (np. orders 99 441, order_items 112 650).
+<img width="448" height="232" alt="image" src="https://github.com/user-attachments/assets/62c60b1b-3ea2-4f4d-9e11-183fc9742fbd" />
+
